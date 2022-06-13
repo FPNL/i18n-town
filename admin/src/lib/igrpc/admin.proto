@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+option go_package = "github.com/FPNL/admin/src/lib/igrpc";
+
+package igrpc;
+
+service Admin {
+  rpc Ping (None) returns (Pong) {}
+  rpc Register (Person) returns (OK) {}
+  rpc Login (SimplePerson) returns (Token) {}
+  rpc Validate (Token) returns (Person) {}
+}
+
+message None {
+
+}
+message Pong {
+  string ping = 1;
+}
+
+message SimplePerson {
+  string Username = 1;
+  string Password = 2;
+}
+
+message Person {
+  string Organize = 1;
+  string Username = 2;
+  string Password = 3;
+  string Nickname = 4;
+}
+
+message Token {
+  string Pid = 1;
+}
+
+message OK {
+  bool Ok = 1;
+}
