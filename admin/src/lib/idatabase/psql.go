@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	E_PSQL_URI = "postgres://postgres:root@localhost:5432"
+	E_PSQL_URI = "postgres://postgres:root@i18n_idb_1:5432"
 )
 
 func setupPSql() (dbpool *pgxpool.Pool, err error) {

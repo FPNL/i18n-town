@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/anime.iml" filepath="$PROJECT_DIR$/.idea/anime.iml" />
+      <module fileurl="file://$USER_HOME$/Downloads/go-class-walk-trunk/.idea/go-class-walk-trunk.iml" filepath="$USER_HOME$/Downloads/go-class-walk-trunk/.idea/go-class-walk-trunk.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../simpleDb/.idea/simpleDb.iml" filepath="$PROJECT_DIR$/../simpleDb/.idea/simpleDb.iml" />
+    </modules>
+  </component>
+</project>

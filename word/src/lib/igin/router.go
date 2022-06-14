@@ -8,6 +8,7 @@ import (
 	"github.com/FPNL/i18n-town/src/lib/icache"
 	"github.com/FPNL/i18n-town/src/lib/idatabase"
 	"github.com/FPNL/i18n-town/src/lib/igrpc"
+	"github.com/FPNL/i18n-town/src/lib/imsgqueue"
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,7 +17,7 @@ func SetupRouter() *gin.Engine {
 	api := r.Group("/api")
 
 	{
-		serv := service.Ping()
+		serv := service.Ping(imsgqueue.ConnectChn(), imsgqueue.GetQueue())
 		hand := controller.Ping(serv)
 		api.GET("/ping", hand.PinPong)
 	}

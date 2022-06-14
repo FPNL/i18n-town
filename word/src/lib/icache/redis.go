@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	E_REDIS_URI = "redis://localhost:6379/0"
+	E_REDIS_URI = "redis://i18n_icache_1:6379/0"
 )
 
 func setupRedis() (*redis.Client, error) {
