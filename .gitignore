@@ -19,3 +19,11 @@
 
 # Go workspace file
 go.work
+
+# project
+**/setting/env.go
+/.idea
+.idea/
+
+# APPLE macos
+.DS_Store
