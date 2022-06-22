@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             v3.19.4
-// source: src/lib/igrpc/admin.proto
+// source: admin.proto
 
 package igrpc
 
@@ -23,9 +23,9 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AdminClient interface {
 	Ping(ctx context.Context, in *None, opts ...grpc.CallOption) (*Pong, error)
-	Register(ctx context.Context, in *Person, opts ...grpc.CallOption) (*OK, error)
-	Login(ctx context.Context, in *SimplePerson, opts ...grpc.CallOption) (*Token, error)
-	Validate(ctx context.Context, in *Token, opts ...grpc.CallOption) (*Person, error)
+	Register(ctx context.Context, in *RegisterInfo, opts ...grpc.CallOption) (*OK, error)
+	Login(ctx context.Context, in *LoginInfo, opts ...grpc.CallOption) (*Token, error)
+	Authenticate(ctx context.Context, in *Token, opts ...grpc.CallOption) (*User, error)
 }
 
 type adminClient struct {
@@ -45,7 +45,7 @@ func (c *adminClient) Ping(ctx context.Context, in *None, opts ...grpc.CallOptio
 	return out, nil
 }
 
-func (c *adminClient) Register(ctx context.Context, in *Person, opts ...grpc.CallOption) (*OK, error) {
+func (c *adminClient) Register(ctx context.Context, in *RegisterInfo, opts ...grpc.CallOption) (*OK, error) {
 	out := new(OK)
 	err := c.cc.Invoke(ctx, "/igrpc.Admin/Register", in, out, opts...)
 	if err != nil {
@@ -54,7 +54,7 @@ func (c *adminClient) Register(ctx context.Context, in *Person, opts ...grpc.Cal
 	return out, nil
 }
 
-func (c *adminClient) Login(ctx context.Context, in *SimplePerson, opts ...grpc.CallOption) (*Token, error) {
+func (c *adminClient) Login(ctx context.Context, in *LoginInfo, opts ...grpc.CallOption) (*Token, error) {
 	out := new(Token)
 	err := c.cc.Invoke(ctx, "/igrpc.Admin/Login", in, out, opts...)
 	if err != nil {
@@ -63,9 +63,9 @@ func (c *adminClient) Login(ctx context.Context, in *SimplePerson, opts ...grpc.
 	return out, nil
 }
 
-func (c *adminClient) Validate(ctx context.Context, in *Token, opts ...grpc.CallOption) (*Person, error) {
-	out := new(Person)
-	err := c.cc.Invoke(ctx, "/igrpc.Admin/Validate", in, out, opts...)
+func (c *adminClient) Authenticate(ctx context.Context, in *Token, opts ...grpc.CallOption) (*User, error) {
+	out := new(User)
+	err := c.cc.Invoke(ctx, "/igrpc.Admin/Authenticate", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -77,9 +77,9 @@ func (c *adminClient) Validate(ctx context.Context, in *Token, opts ...grpc.Call
 // for forward compatibility
 type AdminServer interface {
 	Ping(context.Context, *None) (*Pong, error)
-	Register(context.Context, *Person) (*OK, error)
-	Login(context.Context, *SimplePerson) (*Token, error)
-	Validate(context.Context, *Token) (*Person, error)
+	Register(context.Context, *RegisterInfo) (*OK, error)
+	Login(context.Context, *LoginInfo) (*Token, error)
+	Authenticate(context.Context, *Token) (*User, error)
 	mustEmbedUnimplementedAdminServer()
 }
 
@@ -90,14 +90,14 @@ type UnimplementedAdminServer struct {
 func (UnimplementedAdminServer) Ping(context.Context, *None) (*Pong, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Ping not implemented")
 }
-func (UnimplementedAdminServer) Register(context.Context, *Person) (*OK, error) {
+func (UnimplementedAdminServer) Register(context.Context, *RegisterInfo) (*OK, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Register not implemented")
 }
-func (UnimplementedAdminServer) Login(context.Context, *SimplePerson) (*Token, error) {
+func (UnimplementedAdminServer) Login(context.Context, *LoginInfo) (*Token, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
 }
-func (UnimplementedAdminServer) Validate(context.Context, *Token) (*Person, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Validate not implemented")
+func (UnimplementedAdminServer) Authenticate(context.Context, *Token) (*User, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Authenticate not implemented")
 }
 func (UnimplementedAdminServer) mustEmbedUnimplementedAdminServer() {}
 
@@ -131,7 +131,7 @@ func _Admin_Ping_Handler(srv interface{}, ctx context.Context, dec func(interfac
 }
 
 func _Admin_Register_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Person)
+	in := new(RegisterInfo)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -143,13 +143,13 @@ func _Admin_Register_Handler(srv interface{}, ctx context.Context, dec func(inte
 		FullMethod: "/igrpc.Admin/Register",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AdminServer).Register(ctx, req.(*Person))
+		return srv.(AdminServer).Register(ctx, req.(*RegisterInfo))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Admin_Login_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SimplePerson)
+	in := new(LoginInfo)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -161,25 +161,25 @@ func _Admin_Login_Handler(srv interface{}, ctx context.Context, dec func(interfa
 		FullMethod: "/igrpc.Admin/Login",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AdminServer).Login(ctx, req.(*SimplePerson))
+		return srv.(AdminServer).Login(ctx, req.(*LoginInfo))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Admin_Validate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Admin_Authenticate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Token)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AdminServer).Validate(ctx, in)
+		return srv.(AdminServer).Authenticate(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/igrpc.Admin/Validate",
+		FullMethod: "/igrpc.Admin/Authenticate",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AdminServer).Validate(ctx, req.(*Token))
+		return srv.(AdminServer).Authenticate(ctx, req.(*Token))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -204,10 +204,10 @@ var Admin_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Admin_Login_Handler,
 		},
 		{
-			MethodName: "Validate",
-			Handler:    _Admin_Validate_Handler,
+			MethodName: "Authenticate",
+			Handler:    _Admin_Authenticate_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "src/lib/igrpc/admin.proto",
+	Metadata: "admin.proto",
 }

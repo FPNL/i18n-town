@@ -9,7 +9,7 @@ import (
 
 var hmacSampleSecret = []byte("my_secret_key")
 
-func GenerateToken(user *entity.AMI) (string, error) {
+func GenerateToken(user *entity.User) (string, error) {
 	now := time.Now()
 	tomorrow := now.AddDate(0, 0, 1)
 	// For HMAC signing method, the key can be any []byte. It is recommended to generate
@@ -21,7 +21,7 @@ func GenerateToken(user *entity.AMI) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"Nickname":  user.Nickname,
 		"Organize":  user.Organize,
-		"_id":       user.Id,
+		"_id":       user.ID, // FIXME: float64??
 		"ExpiresAt": tomorrow.Unix(),
 	})
 
@@ -47,6 +47,6 @@ func ParseToken(tokenString string) (jwt.MapClaims, error) {
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		return claims, nil
 	} else {
-		return nil, fmt.Errorf("%v", err)
+		return nil, fmt.Errorf("有問題... %v", err)
 	}
 }

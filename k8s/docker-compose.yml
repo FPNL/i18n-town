@@ -1,0 +1,78 @@
+version: "3.8"  # optional since v1.27.0
+
+volumes:
+  i18n_go:
+  i18n_db:
+  i18n_cache:
+  i18n_msg_queue:
+
+services:
+  iword:
+    container_name: iword
+    image: golang
+    working_dir: /dir
+    volumes:
+      - "../word:/dir"
+      - "i18n_go:/go"
+      - "../env.go:/dir/src/setting/env.go"
+    ports:
+      - "8080:8080"
+    depends_on:
+      - ianime
+      - iadmin
+    command: [ "go", "run", "." ]
+
+  ianime:
+    container_name: ianime
+    image: golang
+    working_dir: /dir
+    volumes:
+      - "../anime:/dir"
+      - "i18n_go:/go"
+      - "../env.go:/dir/src/setting/env.go"
+    depends_on:
+      - imsg_queue
+    command: [ "go", "run", "." ]
+
+  iadmin:
+    container_name: iadmin
+    image: golang
+    working_dir: /dir
+    volumes:
+      - "../admin:/dir"
+      - "i18n_go:/go"
+      - "../env.go:/dir/src/setting/env.go"
+    ports:
+      - "50051"
+    depends_on:
+      - idatabase
+      - icache
+    command: [ "go", "run", "." ]
+
+
+  idatabase:
+    container_name: idatabase
+    image: postgres
+    volumes:
+      - "i18n_db:/var/lib/postgresql/data"
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: root
+
+  icache:
+    container_name: icache
+    image: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - "i18n_cache:/data"
+
+  imsg_queue:
+    container_name: imsg_queue
+    image: rabbitmq
+    volumes:
+      - "i18n_msg_queue:/var/lib/rabbitmq"
+    ports:
+      - "5672"
+      - "15672:15672"

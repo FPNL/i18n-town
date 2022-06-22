@@ -1,39 +1,46 @@
 package igrpc
 
 import (
-	"flag"
+	"context"
 	"fmt"
 	"log"
+	"os"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-var (
-	addr = flag.String("addr", "i18n_iadmin_1:50051", "the address to connect to")
-)
-
 var conn *grpc.ClientConn
-var client AdminClient
+var clientAdmin AdminClient
 
 func Go() (err error) {
-	flag.Parse()
 	// Set up a connection to the server.
-	conn, err = grpc.Dial(*addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	dns := fmt.Sprintf("%s:%s",
+		os.Getenv("IADMIN_HOST"),
+		os.Getenv("IADMIN_PORT"),
+	)
+
+	conn, err = grpc.Dial(dns, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return fmt.Errorf("GRPC 不能連線: %v", err)
 	}
 
-	client = NewAdminClient(conn)
+	clientAdmin = NewAdminClient(conn)
+	ping, err := clientAdmin.Ping(context.Background(), &None{})
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(ping.GetPing() + " grpc admin 成功")
 
 	return
 }
 
-func Connect() AdminClient {
-	if client == nil {
+func ConnectAdmin() AdminClient {
+	if clientAdmin == nil {
 		log.Fatalln("架構錯誤")
 	}
-	return client
+	return clientAdmin
 }
 
 func Close() {

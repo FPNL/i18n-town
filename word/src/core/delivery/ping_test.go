@@ -1,4 +1,4 @@
-package controller
+package delivery
 
 import (
 	"github.com/FPNL/i18n-town/src/tools"

@@ -1,11 +1,20 @@
 package imsgqueue
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/streadway/amqp"
 )
 
 func setupConn() (*amqp.Connection, error) {
-	return amqp.Dial("amqp://guest:guest@i18n_iqueue_1:5672/")
+	dns := fmt.Sprintf("amqp://%s:%s@%s:%s/",
+		os.Getenv("IMSGQUEUE_USERNAME"),
+		os.Getenv("IMSGQUEUE_PASSWORD"),
+		os.Getenv("IMSGQUEUE_HOST"),
+		os.Getenv("IMSGQUEUE_PORT"),
+	)
+	return amqp.Dial(dns)
 }
 
 func createCN(name string) (<-chan amqp.Delivery, error) {

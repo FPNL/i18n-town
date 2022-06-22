@@ -1,4 +1,4 @@
-package controller
+package delivery
 
 import (
 	"net/http"
@@ -8,22 +8,22 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type IPingHandler interface {
+type IPingDelivery interface {
 	PinPong(c *gin.Context)
 }
 
-type pingHandler struct {
+type pingDelivery struct {
 	pingService service.IPingService
 }
 
-var singlePing = pingHandler{}
+var singlePing = pingDelivery{}
 
-func Ping(pingService service.IPingService) IPingHandler {
+func Ping(pingService service.IPingService) IPingDelivery {
 	singlePing.pingService = pingService
 	return &singlePing
 }
 
-func (hd pingHandler) PinPong(c *gin.Context) {
+func (hd pingDelivery) PinPong(c *gin.Context) {
 	res, err := hd.pingService.Pong()
 	if err == nil {
 		c.String(http.StatusOK, res)

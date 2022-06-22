@@ -1,8 +1,8 @@
 package igrpc
 
 import (
-	"flag"
 	"fmt"
+	"os"
 
 	"log"
 	"net"
@@ -10,13 +10,9 @@ import (
 	"google.golang.org/grpc"
 )
 
-var (
-	port = flag.Int("port", 50051, "The server port")
-)
-
 func Go(s *grpc.Server) error {
-	flag.Parse()
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
+	dns := fmt.Sprintf(":%s", os.Getenv("IADMIN_PORT"))
+	lis, err := net.Listen("tcp", dns)
 	if err != nil {
 		return fmt.Errorf("failed to listen: %v", err.Error())
 	}

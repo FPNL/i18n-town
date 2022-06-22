@@ -1,24 +1,28 @@
 package idatabase
 
 import (
-	"fmt"
-	"github.com/jackc/pgx/v4/pgxpool"
+	"gorm.io/gorm"
 	"log"
 )
 
-var db *pgxpool.Pool
+var db *gorm.DB
 
 type Model interface{}
 
 func Go() (err error) {
-	db, err = setupPSql()
+	//db, err = setupPSql()
+	//if err != nil {
+	//	fmt.Println("database done")
+	//}
+	db, err = setupGorm()
 	if err != nil {
-		fmt.Println("database done")
+		log.Fatalln(err)
 	}
+
 	return
 }
 
-func Connect() *pgxpool.Pool {
+func Connect() *gorm.DB {
 	if db == nil {
 		log.Fatalln("專案架構級別錯誤")
 	}
@@ -29,5 +33,5 @@ func Close() {
 	if db == nil {
 		log.Fatalln("專案架構級別錯誤")
 	}
-	db.Close()
+	//db.Close()
 }

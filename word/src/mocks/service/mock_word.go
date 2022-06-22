@@ -107,7 +107,7 @@ func (mr *MockIWordServiceMockRecorder) DeleteOneWord(arg0 interface{}) *gomock.
 // FetchAllWords mocks base method.
 func (m *MockIWordService) FetchAllWords() ([]entity.Word, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FetchAllWords")
+	ret := m.ctrl.Call(m, "FetchAllAdvisedWords")
 	ret0, _ := ret[0].([]entity.Word)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
@@ -116,7 +116,7 @@ func (m *MockIWordService) FetchAllWords() ([]entity.Word, error) {
 // FetchAllWords indicates an expected call of FetchAllWords.
 func (mr *MockIWordServiceMockRecorder) FetchAllWords() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchAllWords", reflect.TypeOf((*MockIWordService)(nil).FetchAllWords))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchAllAdvisedWords", reflect.TypeOf((*MockIWordService)(nil).FetchAllWords))
 }
 
 // UpdateManyWords mocks base method.

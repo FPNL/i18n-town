@@ -2,15 +2,18 @@ package icache
 
 import (
 	"context"
+	"fmt"
 	"github.com/go-redis/redis/v9"
-)
-
-const (
-	E_REDIS_URI = "redis://i18n_icache_1:6379/0"
+	"os"
 )
 
 func setupRedis() (*redis.Client, error) {
-	opt, err := redis.ParseURL(E_REDIS_URI)
+	dns := fmt.Sprintf("redis://%s:%s/%s",
+		os.Getenv("REDIS_HOST"),
+		os.Getenv("REDIS_PORT"),
+		os.Getenv("REDIS_DEFAULT_DB"),
+	)
+	opt, err := redis.ParseURL(dns)
 	if err != nil {
 		return nil, err
 	}

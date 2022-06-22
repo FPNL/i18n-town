@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/FPNL/anime/utils"
+
 	"github.com/google/uuid"
 )
 

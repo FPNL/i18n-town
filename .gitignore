@@ -22,7 +22,6 @@ go.work
 
 # project
 **/setting/env.go
-/.idea
 .idea/
 
 # APPLE macos

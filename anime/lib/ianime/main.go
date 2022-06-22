@@ -1,9 +1,10 @@
 package ianime
 
 import (
+	"log"
+
 	"github.com/FPNL/anime/core/spy_and_family"
 	"github.com/FPNL/anime/package/anime"
-	"log"
 )
 
 var ania *anime.Dashboard

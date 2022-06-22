@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+
 	"github.com/FPNL/anime/package/anime"
+
 	"github.com/streadway/amqp"
 )
 

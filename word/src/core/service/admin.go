@@ -6,9 +6,9 @@ import (
 )
 
 type IAdminService interface {
-	Validate(context.Context, string) (string, error)
-	Login(context.Context, *pb.SimplePerson) (string, error)
-	Register(context.Context, *pb.Person) (bool, error)
+	Authenticate(context.Context, string) (*pb.User, error)
+	Login(context.Context, *pb.LoginInfo) (string, error)
+	Register(context.Context, *pb.RegisterInfo) (bool, error)
 	Ping(ctx context.Context) (string, error)
 }
 
@@ -32,16 +32,16 @@ func (service *adminService) Ping(ctx context.Context) (string, error) {
 	return ping.GetPing(), nil
 }
 
-func (service *adminService) Validate(ctx context.Context, pid string) (string, error) {
-	r, err := service.adminClient.Validate(ctx, &pb.Token{Pid: pid})
+func (service *adminService) Authenticate(ctx context.Context, pid string) (*pb.User, error) {
+	r, err := service.adminClient.Authenticate(ctx, &pb.Token{Pid: pid})
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return r.GetNickname(), nil
+	return r, nil
 }
 
-func (service *adminService) Login(ctx context.Context, person *pb.SimplePerson) (string, error) {
+func (service *adminService) Login(ctx context.Context, person *pb.LoginInfo) (string, error) {
 	r, err := service.adminClient.Login(ctx, person)
 	if err != nil {
 		return "", err
@@ -49,7 +49,8 @@ func (service *adminService) Login(ctx context.Context, person *pb.SimplePerson)
 
 	return r.GetPid(), nil
 }
-func (service *adminService) Register(ctx context.Context, person *pb.Person) (bool, error) {
+
+func (service *adminService) Register(ctx context.Context, person *pb.RegisterInfo) (bool, error) {
 	r, err := service.adminClient.Register(ctx, person)
 	if err != nil {
 		return false, err

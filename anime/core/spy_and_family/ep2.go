@@ -3,6 +3,7 @@ package spy_and_family
 import (
 	"errors"
 	"fmt"
+
 	"github.com/FPNL/anime/package/anime"
 )
 

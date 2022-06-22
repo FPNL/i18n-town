@@ -2,45 +2,55 @@ package repository
 
 import (
 	"context"
-	"github.com/FPNL/admin/src/core/entity"
-	"github.com/FPNL/admin/src/lib/ierror"
+	"errors"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+	"gorm.io/gorm"
 
-	"github.com/FPNL/admin/src/core/model"
+	"github.com/FPNL/admin/src/core/entity"
 	"github.com/go-redis/redis/v9"
 )
 
 type IAdminRepository interface {
-	CreateUser(ctx context.Context, user *entity.AMI) error
-	FindUserById(ctx context.Context, id int) (*entity.AMI, error)
-	FindUserBySimple(ctx context.Context, user *entity.AMI) (*entity.AMI, error)
+	CreateUser(ctx context.Context, user *entity.User) error
+	FindUserById(ctx context.Context, id uint) (*entity.User, error)
+	FindUserBySimple(ctx context.Context, user *entity.LoginInfo) (*entity.User, error)
 }
 
 var singleAdmin = Admin{}
 
-func AdminRepository(adminModel model.IAdminModel, cache redis.Cmdable) IAdminRepository {
+func AdminRepository(model *gorm.DB, cache redis.Cmdable) IAdminRepository {
 	singleAdmin.cache = cache
-	singleAdmin.adminModel = adminModel
+	singleAdmin.model = model
 	return &singleAdmin
 }
 
 type Admin struct {
-	cache      redis.Cmdable
-	adminModel model.IAdminModel
+	cache redis.Cmdable
+	model *gorm.DB
 }
 
-func (a *Admin) CreateUser(ctx context.Context, user *entity.AMI) error {
-	if user, err := a.adminModel.SelectByUsername(ctx, user.Username); err != nil {
-		return err
-	} else if user != nil {
-		return ierror.NewValidateErr("user Duplicate")
+func (a *Admin) CreateUser(ctx context.Context, user *entity.User) error {
+	var foundUser entity.User
+	tx := a.model.Where("username = ?", user.Username).First(&foundUser)
+
+	if errors.As(tx.Error, &gorm.ErrRecordNotFound) {
+		return a.model.Create(user).Error
+	} else if foundUser.ID > 0 {
+		return status.Errorf(codes.InvalidArgument, "使用者重複了")
+	} else {
+		return tx.Error
 	}
-	return a.adminModel.Insert(ctx, user)
 }
 
-func (a *Admin) FindUserBySimple(ctx context.Context, user *entity.AMI) (*entity.AMI, error) {
-	return a.adminModel.SelectByLogin(ctx, user)
+func (a *Admin) FindUserBySimple(ctx context.Context, loginInfo *entity.LoginInfo) (*entity.User, error) {
+	var user entity.User
+	tx := a.model.Model(&entity.User{}).Where("username = ? AND password = ?", loginInfo.Username, loginInfo.Password).First(&user)
+	return &user, tx.Error
 }
 
-func (a *Admin) FindUserById(ctx context.Context, id int) (*entity.AMI, error) {
-	return a.adminModel.SelectById(ctx, id)
+func (a *Admin) FindUserById(ctx context.Context, id uint) (*entity.User, error) {
+	var user entity.User
+	tx := a.model.Model(&entity.User{}).Where("ID = ?", id).First(&user)
+	return &user, tx.Error
 }

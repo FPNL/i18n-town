@@ -1,0 +1,56 @@
+/*
+protoc --proto_path=./grpc \
+  --go_out=./word/src/lib/igrpc --go_opt=paths=source_relative \
+  --go-grpc_out=./word/src/lib/igrpc --go-grpc_opt=paths=source_relative \
+  admin.proto
+*/
+
+syntax = "proto3";
+
+option go_package = "github.com/FPNL/admin/src/lib/igrpc";
+
+package igrpc;
+
+service Admin {
+  rpc Ping (None) returns (Pong) {}
+  rpc Register (RegisterInfo) returns (OK) {}
+  rpc Login (LoginInfo) returns (Token) {}
+  rpc Authenticate (Token) returns (User) {}
+}
+
+enum Role {
+  Owner = 0;
+  Maintainer = 1;
+  Customer = 2;
+}
+
+message None {}
+
+message Pong {
+  string ping = 1;
+}
+
+message RegisterInfo {
+  User User = 1;
+  LoginInfo LoginInfo = 2;
+}
+
+message User {
+  uint64 ID = 1;
+  string Nickname = 2;
+  Role Role = 3;
+  uint64 Organize = 4;
+}
+
+message LoginInfo {
+  string Username = 1;
+  string Password = 2;
+}
+
+message Token {
+  string Pid = 1;
+}
+
+message OK {
+  bool Ok = 1;
+}

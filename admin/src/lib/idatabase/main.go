@@ -1,17 +1,20 @@
 package idatabase
 
-import "github.com/jackc/pgx/v4/pgxpool"
+import (
+	"gorm.io/gorm"
+)
 
-type IDB *pgxpool.Pool
+type IDB *gorm.DB
 
-var db *pgxpool.Pool
+var db *gorm.DB
 
 func Go() (err error) {
-	db, err = setupPSql()
+	//db, err = setupPSql()
+	db, err = setupGorm()
 	return
 }
 
-func Connect() *pgxpool.Pool {
+func Connect() *gorm.DB {
 	if db == nil {
 		panic("專案架構層級錯誤")
 	}
@@ -23,5 +26,7 @@ func Close() {
 		panic("專案架構層級錯誤")
 	}
 
-	db.Close()
+	sqlcmd, _ := db.DB()
+	sqlcmd.Close()
+	//db.Close()
 }

@@ -1,14 +1,16 @@
 package igin
 
-import "fmt"
+import (
+	"github.com/gin-gonic/gin"
+	"os"
+)
 
 // BlockingGo will block until it failed
 func BlockingGo() error {
-	//fmt.Println("setup log...")
-	//setupLog()
-	//fmt.Println("log setup...")
+	r := gin.Default()
 
-	r := SetupRouter()
-	fmt.Println("router done")
-	return r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+	SetupLog(r)
+	SetupRouter(r)
+
+	return r.Run(":" + os.Getenv("IWORD_PORT")) // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }

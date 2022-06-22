@@ -3,6 +3,7 @@ package imsgqueue
 import (
 	"github.com/streadway/amqp"
 	"log"
+	"time"
 )
 
 var conn *amqp.Connection
@@ -10,10 +11,19 @@ var chn *amqp.Channel
 var chnq = make(map[string]*amqp.Queue)
 
 func Go() (err error) {
-	conn, err = setup()
+	for retry := 1; retry <= 3; retry++ {
+		time.Sleep(5 * time.Second)
+		conn, err = setup()
+		if err == nil {
+			break
+		} else {
+			log.Printf("錯誤 %d 次\n", retry)
+		}
+	}
 	if err != nil {
 		return err
 	}
+
 	chn, err = createCN("hello")
 	if err != nil {
 		return err

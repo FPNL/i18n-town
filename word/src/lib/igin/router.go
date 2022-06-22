@@ -1,53 +1,46 @@
 package igin
 
 import (
-	"github.com/FPNL/i18n-town/src/core/controller"
-	"github.com/FPNL/i18n-town/src/core/model"
-	"github.com/FPNL/i18n-town/src/core/repository"
-	"github.com/FPNL/i18n-town/src/core/service"
-	"github.com/FPNL/i18n-town/src/lib/icache"
-	"github.com/FPNL/i18n-town/src/lib/idatabase"
-	"github.com/FPNL/i18n-town/src/lib/igrpc"
-	"github.com/FPNL/i18n-town/src/lib/imsgqueue"
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRouter() *gin.Engine {
-	r := gin.Default()
+func SetupRouter(r *gin.Engine) {
 	api := r.Group("/api")
 
+	deliveryPing := di_delivery_ping()
 	{
-		serv := service.Ping(imsgqueue.ConnectChn(), imsgqueue.GetQueue())
-		hand := controller.Ping(serv)
-		api.GET("/ping", hand.PinPong)
+		api.GET("/ping", deliveryPing.PinPong)
 	}
 
-	adminHandler := controller.Admin(service.Admin(igrpc.Connect()))
-	adminGroup := api.Group("/v1/admin")
+	adminGroup := api.Group("/v1/user")
+	deliveryAdmin := di_delivery_admin()
 	{
-		adminGroup.GET("ping", adminHandler.Ping)
-		adminGroup.POST("login", adminHandler.Login)
-		adminGroup.POST("register", adminHandler.Register)
+		adminGroup.POST("/login", deliveryAdmin.Login)
+		adminGroup.POST("/register", deliveryAdmin.Register)
 	}
 
 	wordApi := api.Group("/v1/word")
+	wordApi.Use(deliveryAdmin.Guard_authenticate)
+	deliveryWord := di_delivery_word()
 	{
-		db := idatabase.Connect()
-		cache := icache.Connect()
-		mod := model.Word(db)
-		repo := repository.Word(mod, cache)
-		serv := service.Word(repo)
-		hand := controller.Word(serv)
-		wordApi.GET("/all", hand.FetchAllWords)
-		wordApi.Use(adminHandler.Auth)
-		wordApi.POST("/addOne", hand.AddOneWord)
-		wordApi.POST("/addMany", hand.AddManyWords)
-		wordApi.PUT("/updateOne", hand.UpdateOneWord)
-		wordApi.PUT("/updateMany", hand.UpdateManyWords)
-		wordApi.DELETE("/deleteOne", hand.DeleteOneWord)
-		wordApi.DELETE("/deleteMany", hand.DeleteManyWord)
-		wordApi.DELETE("/deleteAll", hand.DeleteAll)
+		//AddWords
+		wordApi.POST("/add/committed", deliveryWord.AddCommittedWords)
+		//FetchAdvisedWords
+		wordApi.POST("/fetch/committed", deliveryWord.FetchCommittedWords)
+		//UpdateWords
+		wordApi.PUT("/update/Committed", deliveryWord.UpdateCommittedWords)
+		////DeleteWords
+		//wordApi.DELETE("/delete/committed", deliveryWord.DeleteCommittedWords)
+		//
+		////AdviseWords
+		//wordApi.POST("/advise", deliveryWord.AdviseWords)
+		////FetchStageWords
+		//wordApi.POST("/fetch/stage", deliveryWord.FetchStageWords)
+		////TODO 當 commit word 與 advice word 不一樣，是否為他只承認一部分的意思？
+		//// 這樣實際行為為，我承認了你全部，但是我要修改，於事 who advice 最後會被消失
+		////CommitWords
+		//wordApi.PUT("/commit/stage", deliveryWord.CommitStageWords)
+		////DiscardStageWords
+		//wordApi.DELETE("/discard/stage", deliveryWord.DiscardStageWords)
 	}
-
-	return r
 }

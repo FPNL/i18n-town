@@ -3,19 +3,21 @@ package idatabase
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"github.com/jackc/pgproto3/v2"
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
-const (
-	E_PSQL_URI = "postgres://postgres:root@i18n_idb_1:5432"
-)
-
 func setupPSql() (dbpool *pgxpool.Pool, err error) {
-	// urlExample := os.Getenv("DATABASE_URL")
-	dbpool, err = pgxpool.Connect(context.Background(), E_PSQL_URI)
+	dns := fmt.Sprintf("postgres://%s:%s@%s:%s",
+		os.Getenv("PSQL_USERNAME"),
+		os.Getenv("PSQL_PASSWORD"),
+		os.Getenv("PSQL_HOST"),
+		os.Getenv("PSQL_PORT"),
+	)
+	dbpool, err = pgxpool.Connect(context.Background(), dns)
 	if err != nil {
 		return nil, fmt.Errorf("Unable to connect to database: %v\n", err)
 	}
